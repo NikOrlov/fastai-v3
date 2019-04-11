@@ -53,15 +53,20 @@ async def setup_learner(path, export_file_url):
 loop = asyncio.get_event_loop()
 tasks = [asyncio.ensure_future(setup_learner(path,export_file_url))]
 learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
-loop.close()
 
-
-loop2 = asyncio.get_event_loop()
-#     tasks = [asyncio.ensure_future(setup_learner(model_path,globals()['export_file_url' + '_' + str(prediction)]))]
 model_path = path/'volkswagen'
 tasks = [asyncio.ensure_future(setup_learner(model_path,export_file_url_volkswagen))]
 model_learn = loop2.run_until_complete(asyncio.gather(*tasks))[0]
-loop2.close()
+
+loop.close()
+
+
+# loop2 = asyncio.get_event_loop()
+# #     tasks = [asyncio.ensure_future(setup_learner(model_path,globals()['export_file_url' + '_' + str(prediction)]))]
+# model_path = path/'volkswagen'
+# tasks = [asyncio.ensure_future(setup_learner(model_path,export_file_url_volkswagen))]
+# model_learn = loop2.run_until_complete(asyncio.gather(*tasks))[0]
+# loop2.close()
 
 
 @app.route('/')
