@@ -56,7 +56,7 @@ learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
 
 model_path = path/'volkswagen'
 tasks = [asyncio.ensure_future(setup_learner(model_path,export_file_url_volkswagen))]
-model_learn = loop2.run_until_complete(asyncio.gather(*tasks))[0]
+model_learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
 
 loop.close()
 
