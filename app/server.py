@@ -11,6 +11,16 @@ from fastai.vision import *
 export_file_url = 'https://drive.google.com/uc?export=download&id=1hnHnxKQgi7wpA4ANgR071-qY8GqLj7m1'
 export_file_name = 'export.pkl'
 
+export_file_url_volkswagen = 'https://drive.google.com/uc?export=download&id=1-QyiB7tNePlK9Yvzs4aACjS_3lPImrJH'
+export_file_url_ford = 'https://drive.google.com/uc?export=download&id=1-0OOCPjKd29ahvIMzl1CE7QjCZTw8vj6'
+export_file_url_mazda = 'https://drive.google.com/uc?export=download&id=1-LqqfkYEzymZGLx87T-IQ1GLzhI112jc'
+export_file_url_opel = 'https://drive.google.com/uc?export=download&id=1-ZxN2X4kS0AZAfXro7hNJv_asjgbLwwg'
+export_file_url_audi = 'https://drive.google.com/uc?export=download&id=1-fB0tDZSJhaTbGKPtnR1QRpb2RXNnPKX'
+export_file_url_skoda = 'https://drive.google.com/uc?export=download&id=1-5YzY3KJ6NCaENeBLJTeb-04aW_F5028'
+export_file_url_kia = 'https://drive.google.com/uc?export=download&id=1-3gJ9wnJ0sOTywHJiqRsW2_I65FXCCrk'
+export_file_url_mercedes = 'https://drive.google.com/open?id=1-HcgvMkZHsoefbEQncADFEOUWG-E-CJv'
+export_file_url_bmw = 'https://drive.google.com/uc?export=download&id=1b17uMihx6nnIpvKlf8Y7am3rnEljgvFK'
+
 classes = ['black', 'grizzly', 'teddys']
 path = Path(__file__).parent
 
@@ -25,7 +35,7 @@ async def download_file(url, dest):
             data = await response.read()
             with open(dest, 'wb') as f: f.write(data)
 
-async def setup_learner():
+async def setup_learner(path, export_file_url):
     await download_file(export_file_url, path/export_file_name)
     try:
         learn = load_learner(path, export_file_name)
@@ -37,9 +47,11 @@ async def setup_learner():
             raise RuntimeError(message)
         else:
             raise
-
+      
+            
+            
 loop = asyncio.get_event_loop()
-tasks = [asyncio.ensure_future(setup_learner())]
+tasks = [asyncio.ensure_future(setup_learner(path,export_file_url))]
 learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
 loop.close()
 
@@ -54,7 +66,16 @@ async def analyze(request):
     img_bytes = await (data['file'].read())
     img = open_image(BytesIO(img_bytes))
     prediction = learn.predict(img)[0]
-    return JSONResponse({'result': str(prediction)})
+    
+    model_path = path/str(prediction)
+    
+    loop = asyncio.get_event_loop()
+    tasks = [asyncio.ensure_future(setup_learner(model_path,globals()['export_file_url' + '_' + str(prediction)]))]
+    model_learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
+    loop.close()
+
+    model_prediction = model_learn.predict(img)[0]
+    return JSONResponse({'result': str(model_prediction)})
 
 if __name__ == '__main__':
     if 'serve' in sys.argv: uvicorn.run(app=app, host='0.0.0.0', port=5042)
