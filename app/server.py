@@ -55,6 +55,14 @@ tasks = [asyncio.ensure_future(setup_learner(path,export_file_url))]
 learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
 loop.close()
 
+
+ loop = asyncio.get_event_loop()
+#     tasks = [asyncio.ensure_future(setup_learner(model_path,globals()['export_file_url' + '_' + str(prediction)]))]
+ tasks = [asyncio.ensure_future(setup_learner(model_path,export_file_url_volkswagen))]
+ model_learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
+ loop.close()
+
+
 @app.route('/')
 def index(request):
     html = path/'view'/'index.html'
@@ -69,14 +77,10 @@ async def analyze(request):
     
     model_path = path/str(prediction)
     
-    loop = asyncio.get_event_loop()
-#     tasks = [asyncio.ensure_future(setup_learner(model_path,globals()['export_file_url' + '_' + str(prediction)]))]
-    tasks = [asyncio.ensure_future(setup_learner(model_path,export_file_url_volkswagen))]
-    model_learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
-    loop.close()
 
-#     model_prediction = model_learn.predict(img)[0]
+
+    model_prediction = model_learn.predict(img)[0]
 #     return JSONResponse({'result': str(model_prediction)})
-    return JSONResponse({'result': str(prediction)})
+    return JSONResponse({'result': str(model_prediction)})
 if __name__ == '__main__':
     if 'serve' in sys.argv: uvicorn.run(app=app, host='0.0.0.0', port=5042)
